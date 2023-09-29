@@ -41,8 +41,6 @@ void ps(void) {
         envp_buf[i] = (char*) malloc(MAX_SIZE * sizeof(char));
     }
 
-
-
     while ((entry = readdir(dir)) != NULL) {
         char proc_name[MAX_FILE_NAME];
         strcpy(proc_name, entry->d_name);
@@ -91,13 +89,13 @@ void ps(void) {
             char *envp[MAX_SIZE];
             int env_count = 0;
             size_t env_size = MAX_SIZE;
-            while (getdelim(&envp_buf[env_count], &env_size, '\0', cmdline_file) != -1 && envp_buf[env_count][0] != '\0') {
+            while (getdelim(&envp_buf[env_count], &env_size, '\0', environ_file) != -1 && envp_buf[env_count][0] != '\0') {
                 envp[env_count] = envp_buf[env_count];
                 env_count++;
             }
             envp[env_count] = NULL;
 
-            fclose(cmdline_file);
+            fclose(environ_file);
 
             ///***********************************///
 
