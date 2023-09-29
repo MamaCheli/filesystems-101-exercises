@@ -33,17 +33,22 @@ void ps(void) {
         return;
     }
 
+    char exe[MAX_FILE_PATH];
+    char *argv_buf[MAX_SIZE];
+    char *envp_buf[MAX_SIZE];
+    for (int i = 0; i < MAX_SIZE; i++) {
+        argv_buf[i] = (char*) malloc(MAX_SIZE * sizeof(char));
+        envp_buf[i] = (char*) malloc(MAX_SIZE * sizeof(char));
+    }
+
+
+
     while ((entry = readdir(dir)) != NULL) {
         char proc_name[MAX_FILE_NAME];
         strcpy(proc_name, entry->d_name);
 
         if (atoi(proc_name) != 0) {
             pid_t pid = atoi(proc_name);
-
-            char exe[MAX_FILE_PATH];
-            char *argv[MAX_SIZE];
-            char *envp[MAX_SIZE];
-
             char filepath[MAX_FILE_PATH];
 
             createPath(filepath, proc_name, exe_path);
@@ -54,7 +59,7 @@ void ps(void) {
             }
             exe[exe_size] = '\0';
 
-            char *buf[MAX_SIZE];
+            ///***********************************///
 
             createPath(filepath, proc_name, cmdline_path);
             FILE *cmdline_file = fopen(filepath, "r");
@@ -63,24 +68,18 @@ void ps(void) {
                 continue;
             }
 
-            for (int i = 0; i < MAX_SIZE; i++) {
-                buf[i] = (char *) malloc(MAX_SIZE * sizeof(char));
-            }
+            char *argv[MAX_SIZE];
             int arg_count = 0;
-
-            while (fgets(buf[arg_count], sizeof(buf[arg_count]), cmdline_file) != NULL) {
-                // if (buf[arg_count][strlen(buf[arg_count]) - 1] == '\n') {
-                //     buf[arg_count][strlen(buf[arg_count]) - 1] = '\0';
-                // }
-                argv[arg_count] = buf[arg_count];
+            size_t arg_size = MAX_SIZE;
+            while (getdelim(&argv_buf[arg_count], &arg_size, '\0', cmdline_file) != -1 && argv_buf[arg_count][0] != '\0') {
+                argv[arg_count] = argv_buf[arg_count];
                 arg_count++;
             }
             argv[arg_count] = NULL;
+
             fclose(cmdline_file);
 
-            for (int i = 0; i < MAX_SIZE; i++) {
-                free(buf[i]);
-            }
+            ///***********************************///
 
             createPath(filepath, proc_name, environ_path);
             FILE *environ_file = fopen(filepath, "r");
@@ -89,27 +88,26 @@ void ps(void) {
                 continue;
             }
 
-            for (int i = 0; i < MAX_SIZE; i++) {
-                buf[i] = (char *) malloc(MAX_SIZE * sizeof(char));
-            }
+            char *envp[MAX_SIZE];
             int env_count = 0;
-
-            while (fgets(buf[env_count], sizeof(buf[env_count]), environ_file) != NULL) {
-                // if (buf[env_count][strlen(buf[env_count]) - 1] == '\n') {
-                //     buf[env_count][strlen(buf[env_count]) - 1] = '\0';
-                // }
-                envp[env_count] = buf[env_count];
+            size_t env_size = MAX_SIZE;
+            while (getdelim(&envp_buf[env_count], &env_size, '\0', cmdline_file) != -1 && envp_buf[env_count][0] != '\0') {
+                envp[env_count] = envp_buf[env_count];
                 env_count++;
             }
             envp[env_count] = NULL;
-            fclose(environ_file);
 
-            for (int i = 0; i < MAX_SIZE; i++) {
-                free(buf[i]);
-            }
+            fclose(cmdline_file);
+
+            ///***********************************///
 
             report_process(pid, exe, argv, envp);
         }
+    }
+
+    for (int i = 0; i < MAX_SIZE; i++) {
+        free(argv_buf[i]);
+        free(envp_buf[i]);
     }
     closedir(dir);
 }
