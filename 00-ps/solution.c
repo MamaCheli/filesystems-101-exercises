@@ -69,9 +69,9 @@ void ps(void) {
             int arg_count = 0;
 
             while (fgets(buf[arg_count], sizeof(buf[arg_count]), cmdline_file) != NULL) {
-                if (buf[arg_count][strlen(buf[arg_count]) - 1] == '\n') {
-                    buf[arg_count][strlen(buf[arg_count]) - 1] = '\0';
-                }
+                // if (buf[arg_count][strlen(buf[arg_count]) - 1] == '\n') {
+                //     buf[arg_count][strlen(buf[arg_count]) - 1] = '\0';
+                // }
                 argv[arg_count] = buf[arg_count];
                 arg_count++;
             }
@@ -95,9 +95,9 @@ void ps(void) {
             int env_count = 0;
 
             while (fgets(buf[env_count], sizeof(buf[env_count]), environ_file) != NULL) {
-                if (buf[env_count][strlen(buf[env_count]) - 1] == '\n') {
-                    buf[env_count][strlen(buf[env_count]) - 1] = '\0';
-                }
+                // if (buf[env_count][strlen(buf[env_count]) - 1] == '\n') {
+                //     buf[env_count][strlen(buf[env_count]) - 1] = '\0';
+                // }
                 envp[env_count] = buf[env_count];
                 env_count++;
             }
