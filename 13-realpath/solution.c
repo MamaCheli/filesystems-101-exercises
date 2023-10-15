@@ -89,17 +89,12 @@ void abspath(const char *path) {
             realpath[i] = token[i - realpath_len];
         }
         realpath[realpath_len + token_len] = '\0';
-
         realpath_len = strlen(realpath);
-        // asprintf(tmp_str, "%s%s", realpath, token);
-        // asprintf(realpath, "%s", tmp_str);
-        // realpath_len = strlen(realpath);
 
-
-        // if (realpath_len >= PATH_MAX) {
-        //     // report_error(realpath, token, ENAMETOOLONG);
-        //     return;
-        // }
+        if (realpath_len >= PATH_MAX) {
+            // report_error(realpath, token, ENAMETOOLONG);
+            return;
+        }
 
         if (lstat(realpath, &stat_) != 0) {
             if (errno == ENOENT && first_slash == NULL) {
