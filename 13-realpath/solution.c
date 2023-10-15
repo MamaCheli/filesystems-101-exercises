@@ -44,7 +44,7 @@ void abspath(const char *path) {
     }
 
     if (partpath_len >= PATH_MAX || realpath_len >= PATH_MAX) {
-        // report_error("/", partpath, ENAMETOOLONG);
+        report_error("/", partpath, ENAMETOOLONG);
         return;
     }
 
@@ -83,6 +83,7 @@ void abspath(const char *path) {
         size_t token_len = strlen(token);
         for (size_t i = realpath_len; i < realpath_len + token_len; i++) {
             if (i >= PATH_MAX) {
+                report_error(realpath, token, ENAMETOOLONG);
                 return;
             }
             realpath[i] = token[i - realpath_len];
@@ -91,7 +92,7 @@ void abspath(const char *path) {
         realpath_len = strlen(realpath);
 
         if (realpath_len >= PATH_MAX) {
-            // report_error(realpath, token, ENAMETOOLONG);
+            report_error(realpath, token, ENAMETOOLONG);
             return;
         }
 
@@ -99,7 +100,9 @@ void abspath(const char *path) {
             if (errno == ENOENT && first_slash == NULL) {
                 errno = 0;
                 report_path(realpath);
+                return;
             }
+            report_error(realpath, token, ENOENT);
             return;
         }
         if (S_ISLNK(stat_.st_mode)) {
@@ -139,6 +142,7 @@ void abspath(const char *path) {
                 
                 for (size_t i = symlink_len; i < symlink_len + partpath_len; i++) {
                     if (i >= PATH_MAX) {
+                        report_error(realpath, token, ENAMETOOLONG);
                         return;
                     }
                     symlink[i] = partpath[i - symlink_len];
