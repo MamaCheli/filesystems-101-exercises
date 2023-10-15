@@ -33,6 +33,10 @@ void abspath(const char *path) {
         snprintf(partpath, sizeof(partpath), "%s", path + 1);
         partpath_len = strlen(partpath);
     } else {
+        if (getcwd(realpath, PATH_MAX) == NULL) {
+            report_error("/", path, errno);
+            return;
+        }
         realpath_len = strlen(realpath);
 
         snprintf(partpath, sizeof(partpath), "%s", path);
