@@ -10,13 +10,12 @@
 #include <unistd.h>
 #include <stdio.h>
 
-
 void abspath(const char *path) {
     char realpath[PATH_MAX];    
 
     size_t partpath_len, realpath_len;
     char partpath[PATH_MAX], token[PATH_MAX], symlink[PATH_MAX];
-    // char tmp_str[PATH_MAX];
+    char tmp_str[PATH_MAX];
 
     struct stat stat_;
     int symlinks = 0;
@@ -79,11 +78,12 @@ void abspath(const char *path) {
             continue;
         }
 
-        // snprintf(tmp_str, 2 * PATH_MAX, "%s%s", realpath, token);
-        // snprintf(realpath, PATH_MAX, "%s", tmp_str);
-        // realpath_len = strlen(realpath);
-        strcat(realpath, token);
+        snprintf(tmp_str, 2 * PATH_MAX, "%s%s", realpath, token);
+        snprintf(realpath, PATH_MAX, "%s", tmp_str);
         realpath_len = strlen(realpath);
+        // asprintf(tmp_str, "%s%s", realpath, token);
+        // asprintf(realpath, "%s", tmp_str);
+        // realpath_len = strlen(realpath);
 
 
         if (realpath_len >= PATH_MAX) {
@@ -130,10 +130,10 @@ void abspath(const char *path) {
                     symlink[symlink_len + 1] = 0;
                 }
 
-                // snprintf(symlink, sizeof(partpath) + sizeof(symlink), "%s%s", symlink, partpath);
-                // partpath_len = strlen(symlink);
-                strcat(symlink, partpath);
+                snprintf(symlink, sizeof(partpath) + sizeof(symlink), "%s%s", symlink, partpath);
                 partpath_len = strlen(symlink);
+                // strcat(symlink, partpath);
+                // partpath_len = strlen(symlink);
 
                 if (partpath_len >= PATH_MAX) {
                     report_error(realpath, symlink, ENAMETOOLONG);
