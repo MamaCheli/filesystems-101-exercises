@@ -15,7 +15,7 @@ void abspath(const char *path) {
 
     size_t partpath_len, realpath_len;
     char partpath[PATH_MAX], token[PATH_MAX], symlink[PATH_MAX];
-    char tmp_str[PATH_MAX];
+    // char tmp_str[PATH_MAX];
 
     struct stat stat_;
     int symlinks = 0;
@@ -78,18 +78,28 @@ void abspath(const char *path) {
             continue;
         }
 
-        snprintf(tmp_str, 2 * PATH_MAX, "%s%s", realpath, token);
-        snprintf(realpath, PATH_MAX, "%s", tmp_str);
+        // snprintf(tmp_str, 2 * PATH_MAX, "%s%s", realpath, token);
+        // snprintf(realpath, 2 *PATH_MAX, "%s", tmp_str);
+        realpath_len = strlen(realpath);
+        size_t token_len = strlen(token);
+        for (size_t i = realpath_len; i < realpath_len + token_len; i++) {
+            if (i >= PATH_MAX) {
+                return;
+            }
+            realpath[i] = token[i - realpath_len];
+        }
+        realpath[realpath_len + token_len] = '\0';
+
         realpath_len = strlen(realpath);
         // asprintf(tmp_str, "%s%s", realpath, token);
         // asprintf(realpath, "%s", tmp_str);
         // realpath_len = strlen(realpath);
 
 
-        if (realpath_len >= PATH_MAX) {
-            // report_error(realpath, token, ENAMETOOLONG);
-            return;
-        }
+        // if (realpath_len >= PATH_MAX) {
+        //     // report_error(realpath, token, ENAMETOOLONG);
+        //     return;
+        // }
 
         if (lstat(realpath, &stat_) != 0) {
             if (errno == ENOENT && first_slash == NULL) {
@@ -130,8 +140,19 @@ void abspath(const char *path) {
                     symlink[symlink_len + 1] = 0;
                 }
 
-                snprintf(symlink, sizeof(partpath) + sizeof(symlink), "%s%s", symlink, partpath);
-                partpath_len = strlen(symlink);
+                // snprintf(symlink, sizeof(partpath) + sizeof(symlink), "%s%s", symlink, partpath);
+                // partpath_len = strlen(symlink);
+                
+                for (size_t i = symlink_len; i < symlink_len + partpath_len; i++) {
+                    if (i >= PATH_MAX) {
+                        return;
+                    }
+                    symlink[i] = partpath[i - symlink_len];
+                }
+                symlink[symlink_len + partpath_len] = '\0';
+
+                realpath_len = strlen(realpath);
+
                 // strcat(symlink, partpath);
                 // partpath_len = strlen(symlink);
 
