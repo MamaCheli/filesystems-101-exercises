@@ -108,7 +108,7 @@ void abspath(const char *path) {
             char *last_slash = strrchr(parent, '/') + 1;
             *last_slash = '\0';
 
-            report_error(parent, realpath, ENOENT);
+            report_error(parent, token, ENOENT);
             return;
         }
         if (S_ISLNK(stat_.st_mode)) {
