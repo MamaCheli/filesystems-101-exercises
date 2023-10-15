@@ -105,15 +105,13 @@ void abspath(const char *path) {
                 errno = 0;
                 report_path(realpath);
                 return;
-            } 
-            
-            char parent[PATH_MAX];
-            snprintf(parent, sizeof(parent), "%s", realpath);
-            parent[realpath_len - 1] = '\0';
-            char *last_slash = strrchr(parent, '/') + 1;
-            *last_slash = '\0';        
+            }
+            if (strlen(realpath) > 1) {
+                char *last_slash = strrchr(realpath, '/');
+                *last_slash = '\0';
+            }
 
-            report_error(parent, token, errno);
+            report_error(realpath, token, errno);
             return;
         }
         if (S_ISLNK(stat_.st_mode)) {
@@ -122,6 +120,18 @@ void abspath(const char *path) {
                 return;
             }
             symlink_len = readlink(realpath, symlink, sizeof(symlink) - 1);
+
+            if (errno) {
+                char parent[PATH_MAX];
+                snprintf(parent, sizeof(parent), "%s", realpath);
+                parent[realpath_len - 1] = '\0';
+                char *last_slash = strrchr(parent, '/') + 1;
+                *last_slash = '\0';        
+
+                report_error(parent, token, errno);
+                return;
+            }
+
             if (symlink_len < 0) {
                 report_error(realpath, symlink, errno);
                 return;
