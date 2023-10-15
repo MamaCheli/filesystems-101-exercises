@@ -49,6 +49,10 @@ void abspath(const char *path) {
     }
 
     while (partpath_len > 0) {
+        if (chdir(realpath) != 0) {
+            return;
+        }
+
         char *first_slash = strchr(partpath, '/');
         char *token_ptr = first_slash ? first_slash : partpath + partpath_len;
 
@@ -96,7 +100,7 @@ void abspath(const char *path) {
             return;
         }
 
-        if (lstat(realpath, &stat_) != 0) {
+        if (lstat(token, &stat_) != 0) {
             if (errno == ENOENT && first_slash == NULL) {
                 errno = 0;
                 report_path(realpath);
@@ -114,11 +118,14 @@ void abspath(const char *path) {
                 return;
             }
             if (errno == ENOTDIR) {
-                                char parent[PATH_MAX];
+                char parent[PATH_MAX];
                 snprintf(parent, sizeof(parent), "%s", realpath);
                 parent[realpath_len - 1] = '\0';
                 char *last_slash = strrchr(parent, '/') + 1;
                 *last_slash = '\0';
+
+                token[token_len] = '/';
+                token[token_len + 1] = '\0';
 
                 report_error(parent, token, ENOTDIR);
                 return;
