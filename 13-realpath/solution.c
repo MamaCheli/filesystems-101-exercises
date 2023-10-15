@@ -49,9 +49,9 @@ void abspath(const char *path) {
     }
 
     while (partpath_len > 0) {
-        if (chdir(realpath) != 0) {
-            return;
-        }
+        // if (chdir(realpath) != 0) {
+        //     return;
+        // }
 
         char *first_slash = strchr(partpath, '/');
         char *token_ptr = first_slash ? first_slash : partpath + partpath_len;
