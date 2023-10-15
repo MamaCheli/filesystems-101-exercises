@@ -30,7 +30,7 @@ void abspath(const char *path) {
         }
         realpath_len = 1;
 
-        snprintf(partpath, sizeof(partpath), "%s", path + 1);
+        snprintf(partpath, sizeof(partpath), "%s", path);
         partpath_len = strlen(partpath);
     } else {
         if (getcwd(realpath, PATH_MAX) == NULL) {
@@ -102,7 +102,13 @@ void abspath(const char *path) {
                 report_path(realpath);
                 return;
             }
-            report_error(realpath, token, ENOENT);
+            char parent[PATH_MAX];
+            snprintf(parent, sizeof(parent), "%s", realpath);
+            parent[realpath_len - 1] = '\0';
+            char *last_slash = strrchr(parent, '/') + 1;
+            *last_slash = '\0';
+
+            report_error(parent, realpath, ENOENT);
             return;
         }
         if (S_ISLNK(stat_.st_mode)) {
