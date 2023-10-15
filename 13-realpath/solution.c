@@ -105,31 +105,16 @@ void abspath(const char *path) {
                 errno = 0;
                 report_path(realpath);
                 return;
-            }
+            } 
+            
+            char parent[PATH_MAX];
+            snprintf(parent, sizeof(parent), "%s", realpath);
+            parent[realpath_len - 1] = '\0';
+            char *last_slash = strrchr(parent, '/') + 1;
+            *last_slash = '\0';        
 
-            if (errno == ENOENT) {
-                char parent[PATH_MAX];
-                snprintf(parent, sizeof(parent), "%s", realpath);
-                parent[realpath_len - 1] = '\0';
-                char *last_slash = strrchr(parent, '/') + 1;
-                *last_slash = '\0';
-
-                report_error(parent, token, ENOENT);
-                return;
-            }
-            if (errno == ENOTDIR) {
-                char parent[PATH_MAX];
-                snprintf(parent, sizeof(parent), "%s", realpath);
-                parent[realpath_len - 1] = '\0';
-                char *last_slash = strrchr(parent, '/') + 1;
-                *last_slash = '\0';
-
-                token[token_len] = '/';
-                token[token_len + 1] = '\0';
-
-                report_error(parent, token, ENOTDIR);
-                return;
-            }
+            report_error(parent, token, errno);
+            return;
         }
         if (S_ISLNK(stat_.st_mode)) {
             if (symlinks++ > MAXSYMLINKS) {
