@@ -78,8 +78,7 @@ void abspath(const char *path) {
             continue;
         }
 
-        // snprintf(tmp_str, 2 * PATH_MAX, "%s%s", realpath, token);
-        // snprintf(realpath, 2 *PATH_MAX, "%s", tmp_str);
+
         realpath_len = strlen(realpath);
         size_t token_len = strlen(token);
         for (size_t i = realpath_len; i < realpath_len + token_len; i++) {
@@ -145,8 +144,7 @@ void abspath(const char *path) {
                     symlink[i] = partpath[i - symlink_len];
                 }
                 symlink[symlink_len + partpath_len] = '\0';
-
-                realpath_len = strlen(realpath);
+                partpath_len = strlen(symlink);
 
                 // strcat(symlink, partpath);
                 // partpath_len = strlen(symlink);
