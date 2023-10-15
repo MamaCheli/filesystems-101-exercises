@@ -100,7 +100,7 @@ void abspath(const char *path) {
             return;
         }
 
-        if (lstat(token, &stat_) != 0) {
+        if (lstat(realpath, &stat_) != 0) {
             if (errno == ENOENT && first_slash == NULL) {
                 errno = 0;
                 report_path(realpath);
