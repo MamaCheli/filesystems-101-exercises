@@ -21,8 +21,6 @@ void abspath(const char *path) {
     int symlinks = 0;
     int symlink_len;
 
-    realpath[0] = '\0';
-
     if (path[0] == '/') {
         realpath[0] = '/';
         realpath[1] = '\0';
@@ -78,8 +76,6 @@ void abspath(const char *path) {
             continue;
         }
 
-
-        realpath_len = strlen(realpath);
         size_t token_len = strlen(token);
         for (size_t i = realpath_len; i < realpath_len + token_len; i++) {
             if (i >= PATH_MAX) {
