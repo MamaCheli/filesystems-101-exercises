@@ -17,6 +17,7 @@ void abspath(const char *path) {
 
     size_t partpath_len, realpath_len;
     char partpath[PATH_MAX], token[PATH_MAX], symlink[PATH_MAX];
+    size_t parent_len;
     char parent[PATH_MAX];
 
     struct stat stat_;
@@ -51,10 +52,6 @@ void abspath(const char *path) {
     }
 
     while (partpath_len > 0) {
-        // if (chdir(realpath) != 0) {
-        //     return;
-        // }
-
         char *first_slash = strchr(partpath, '/');
         char *token_ptr = first_slash ? first_slash : partpath + partpath_len;
 
@@ -87,6 +84,7 @@ void abspath(const char *path) {
         }
 
         snprintf(parent, sizeof(parent), "%s", realpath);
+        parent_len = realpath_len;
 
         size_t token_len = strlen(token);
         for (size_t i = realpath_len; i < realpath_len + token_len; i++) {
@@ -106,7 +104,11 @@ void abspath(const char *path) {
 
         int fd = open(parent, O_RDONLY | O_DIRECTORY);
         if (fd == -1) {
-            // report_error(parent, token, errno);
+            if (parent_len > 1 && parent[parent_len - 1] != '/') {
+                parent[parent_len++] = '/';
+                parent[parent_len] = '\0';
+            }
+            report_error(parent, token, errno);
             return;
         }
 
@@ -117,12 +119,12 @@ void abspath(const char *path) {
                 close(fd);
                 return;
             }
-            // if (strlen(realpath) > 1) {
-            //     char *last_slash = strrchr(realpath, '/');
-            //     *last_slash = '\0';
-            // }
 
-            // report_error(realpath, token, errno);
+            if (parent_len > 1 && parent[parent_len - 1] != '/') {
+                parent[parent_len++] = '/';
+                parent[parent_len] = '\0';
+            }
+            report_error(parent, token, errno);
             close(fd);
             return;
         }
@@ -135,19 +137,12 @@ void abspath(const char *path) {
             }
             symlink_len = readlink(realpath, symlink, sizeof(symlink) - 1);
 
-            // if (errno) {
-            //     char parent[PATH_MAX];
-            //     snprintf(parent, sizeof(parent), "%s", realpath);
-            //     parent[realpath_len - 1] = '\0';
-            //     char *last_slash = strrchr(parent, '/') + 1;
-            //     *last_slash = '\0';        
-
-            //     report_error(parent, token, errno);
-            //     return;
-            // }
-
             if (symlink_len < 0) {
-                // report_error(realpath, symlink, errno);
+                if (parent_len > 1 && parent[parent_len - 1] != '/') {
+                    parent[parent_len++] = '/';
+                    parent[parent_len] = '\0';
+                }
+                report_error(parent, token, errno);
                 return;
             }
 
@@ -171,9 +166,6 @@ void abspath(const char *path) {
                     symlink[symlink_len] = '/';
                     symlink[symlink_len + 1] = 0;
                 }
-
-                // snprintf(symlink, sizeof(partpath) + sizeof(symlink), "%s%s", symlink, partpath);
-                // partpath_len = strlen(symlink);
                 
                 for (size_t i = symlink_len; i < symlink_len + partpath_len; i++) {
                     if (i >= PATH_MAX) {
@@ -184,9 +176,6 @@ void abspath(const char *path) {
                 }
                 symlink[symlink_len + partpath_len] = '\0';
                 partpath_len = strlen(symlink);
-
-                // strcat(symlink, partpath);
-                // partpath_len = strlen(symlink);
 
                 if (partpath_len >= PATH_MAX) {
                     // report_error(realpath, symlink, ENAMETOOLONG);
