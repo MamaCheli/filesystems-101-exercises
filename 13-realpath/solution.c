@@ -104,10 +104,10 @@ void abspath(const char *path) {
 
         int fd = open(parent, O_RDONLY | O_DIRECTORY);
         if (fd == -1) {
-            if (parent_len > 1 && parent[parent_len - 1] != '/') {
-                parent[parent_len++] = '/';
-                parent[parent_len] = '\0';
-            }
+            // if (parent_len > 1 && parent[parent_len - 1] != '/') {
+            //     parent[parent_len++] = '/';
+            //     parent[parent_len] = '\0';
+            // }
             report_error(parent, token, errno);
             return;
         }
@@ -120,10 +120,10 @@ void abspath(const char *path) {
                 return;
             }
 
-            if (parent_len > 1 && parent[parent_len - 1] != '/') {
-                parent[parent_len++] = '/';
-                parent[parent_len] = '\0';
-            }
+            // if (parent_len > 1 && parent[parent_len - 1] != '/') {
+            //     parent[parent_len++] = '/';
+            //     parent[parent_len] = '\0';
+            // }
             report_error(parent, token, errno);
             close(fd);
             return;
