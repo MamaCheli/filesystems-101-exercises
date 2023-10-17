@@ -123,21 +123,38 @@ void abspath(const char *path) {
             *last_slash = '\0';
 
             report_error(parent, token, errno);
+            close(fd);
             return;
         }
 
         if (fstatat(fd, token, &stat_, AT_SYMLINK_NOFOLLOW) != 0) {
-            if (errno == ENOENT && first_slash == NULL) {
-                errno = 0;
-                report_path(realpath);
+            // if (errno == ENOENT && first_slash == NULL) {
+            //     errno = 0;
+            //     report_path(realpath);
+            //     close(fd);
+            //     return;
+            // }
+
+            if (errno == ENOTDIR) {
+                if (parent_len > 1 && parent[parent_len - 1] == '/') {
+                    parent[parent_len - 1] = '\0';
+                    parent_len--;
+                }
+
+                char *last_slash = strrchr(parent, '/') + 1;
+                parent_len = last_slash - parent;
+                snprintf(token, sizeof(token), "%s", &parent[parent_len]);
+                *last_slash = '\0';
+
+                report_error(parent, token, errno);
                 close(fd);
                 return;
             }
 
-            // if (parent_len > 1 && parent[parent_len - 1] != '/') {
-            //     parent[parent_len++] = '/';
-            //     parent[parent_len] = '\0';
-            // }
+            if (parent_len > 1 && parent[parent_len - 1] != '/') {
+                parent[parent_len++] = '/';
+                parent[parent_len] = '\0';
+            }
             report_error(parent, token, errno);
             close(fd);
             return;
