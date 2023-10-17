@@ -102,22 +102,27 @@ void abspath(const char *path) {
             return;
         }
 
-        int is_dir = open(realpath, O_RDONLY | O_DIRECTORY);
-        if (is_dir == -1) {
-            report_error(parent, token, errno);
-            close(is_dir);
-            return;
-        }
-        close(is_dir);
+        // int is_dir = open(realpath, O_RDONLY | O_DIRECTORY);
+        // if (is_dir == -1) {
+        //     report_error(parent, token, errno);
+        //     close(is_dir);
+        //     return;
+        // }
+        // close(is_dir);
 
         int fd = open(parent, O_RDONLY | O_DIRECTORY);
         if (fd == -1) {
-            // if (parent_len > 1 && parent[parent_len - 1] != '/') {
-            //     parent[parent_len++] = '/';
-            //     parent[parent_len] = '\0';
-            // }
-            // printf("asfmasjodfmaodfmn\n");
-            // report_error(parent, token, errno);
+            if (parent_len > 1 && parent[parent_len - 1] == '/') {
+                parent[parent_len - 1] = '\0';
+                parent_len--;
+            }
+
+            char *last_slash = strrchr(parent, '/') + 1;
+            parent_len = last_slash - parent;
+            snprintf(token, sizeof(token), "%s", &parent[parent_len]);
+            *last_slash = '\0';
+
+            report_error(parent, token, errno);
             return;
         }
 
