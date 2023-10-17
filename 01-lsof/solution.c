@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_FILE_NAME 32
+#define MAX_FILE_NAME 256
 
 static const char *proc_path = "/proc";
 // static const char *fd_path = "/fd";
@@ -31,7 +31,7 @@ void lsof(void)
     }
 
     while ((proc_entry = readdir(proc_dir)) != NULL) {
-        strcpy(proc_name, proc_entry->d_name);
+        snprintf(proc_name, sizeof(proc_name), "%s", proc_entry->d_name);
         if (atoi(proc_name) == 0) {
             continue;
         }
@@ -48,7 +48,7 @@ void lsof(void)
         }
 
         while ((fd_entry = readdir(fd_dir)) != NULL) {
-            strcpy(fd_name, fd_entry->d_name);
+            snprintf(fd_name, sizeof(fd_name), "%s", fd_entry->d_name);
             if (!strcmp(fd_name, ".") || !strcmp(fd_name, "..")) {
                 continue;
             }
