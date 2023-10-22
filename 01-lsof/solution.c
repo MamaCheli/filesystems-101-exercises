@@ -14,7 +14,7 @@ static const char *proc_path = "/proc";
 
 void lsof(void)
 {
-    char proc_name[MAX_FILE_NAME], fd_name[MAX_FILE_NAME];
+    // char proc_name[MAX_FILE_NAME], fd_name[MAX_FILE_NAME];
     char fd_path[PATH_MAX];
     char symlink[PATH_MAX + MAX_FILE_NAME];
     char openfile[PATH_MAX];
@@ -31,12 +31,11 @@ void lsof(void)
     }
 
     while ((proc_entry = readdir(proc_dir)) != NULL) {
-        snprintf(proc_name, sizeof(proc_name), "%s", proc_entry->d_name);
-        if (atoi(proc_name) == 0) {
+        if (atoi(proc_entry->d_name) == 0) {
             continue;
         }
 
-        snprintf(fd_path, sizeof(fd_path), "/proc/%s/fd", proc_name);
+        snprintf(fd_path, sizeof(fd_path), "/proc/%s/fd", proc_entry->d_name);
 
         DIR *fd_dir;
         struct dirent *fd_entry;
@@ -48,12 +47,11 @@ void lsof(void)
         }
 
         while ((fd_entry = readdir(fd_dir)) != NULL) {
-            snprintf(fd_name, sizeof(fd_name), "%s", fd_entry->d_name);
-            if (!strcmp(fd_name, ".") || !strcmp(fd_name, "..")) {
+            if (!strcmp(fd_entry->d_name, ".") || !strcmp(fd_entry->d_name, "..")) {
                 continue;
             }
 
-            snprintf(symlink, sizeof(symlink), "%s/%s", fd_path, fd_name);
+            snprintf(symlink, sizeof(symlink), "%s/%s", fd_path, fd_entry->d_name);
 
             symlink_len = readlink(symlink, openfile, sizeof(openfile));
             if (symlink_len < 0) {
