@@ -1,4 +1,4 @@
-#include <stdbool.h>
+#include <solution.h>
 
 #include <liburing.h>
 
@@ -51,7 +51,7 @@ int queue_read(struct io_uring* ring, off_t size, off_t offset, int infd) {
 
     data->is_read = 1;
     data->first_offset = offset;
-    // data->second_offset = offset;
+    data->second_offset = offset;
     data->size = size;
     data->iov.iov_base = data + 1;
     data->iov.iov_len = size;
